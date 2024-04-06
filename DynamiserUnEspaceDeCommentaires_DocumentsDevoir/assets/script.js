@@ -1,54 +1,44 @@
-console.log("script chargé !");
-// Reperer dans le dom comment list
-const myError = document.querySelector("#error-message");
-const form = document.querySelector("form");
-const commentList = document.querySelector("#comment-list");
-// cloner
-const comment = document.querySelector("#comment-list > div:nth-child(2)");
+// Attend que le DOM soit complètement chargé
+document.addEventListener("DOMContentLoaded", function () {
+  // Récupère les éléments nécessaires dans le DOM
+  const commentForm = document.getElementById("comment-form");
+  const commentList = document.getElementById("comment-list");
+  const errorMessage = document.getElementById("error-message");
 
-// fonction pour cloné automatiquement
-const cloneComment = (comment, firstname, lastname, message) => {
-  const commentClone = comment.cloneNode(true);
-  const h3 = commentClone.querySelector(".font-medium, .text-gray-900");
-  h3.textContent = `${firstname} ${lastname}`;
-  const p = commentClone.querySelector(
-    ".prose, .prose-sm, .mt-4, .max-w-none, .text-gray-500"
-  );
-  p.textContent = message;
-  return commentClone;
-};
+  // Écoute l'événement de soumission du formulaire
+  commentForm.addEventListener("submit", function (event) {
+    event.preventDefault();
 
-const resetFormInput = () => {
-  document.querySelector("#first-name").value = "";
-  document.querySelector("#last-name").value = "";
-  document.querySelector("#message").value = "";
-};
+    // Récupère les valeurs des champs du formulaire
+    const firstName = document.getElementById("first-name").value;
+    const lastName = document.getElementById("last-name").value;
+    const message = document.getElementById("message").value;
 
-//soumission du form
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
+    // Vérifie si tous les champs du formulaire sont remplis
+    if (firstName && lastName && message) {
+      errorMessage.style.display = "none";
 
-  // recuperation des valeurs des inputs
-  const inputFirstName = document.querySelector("#first-name").value.trim();
-  const inputLastName = document.querySelector("#last-name").value.trim();
-  const inputMessage = document.querySelector("#message").value.trim();
+      // Construit la structure HTML pour le nouveau commentaire
+      const newComment = `
+        <div class="flex space-x-4 text-sm text-gray-500">
+          <div class="flex-1 py-10 border-t border-gray-200">
+            <h3 class="font-medium text-gray-900">${firstName} ${lastName}</h3>
+            <div class="prose prose-sm mt-4 max-w-none text-gray-500">
+              <p>${message}</p>
+            </div>
+          </div>
+        </div>
+      `;
 
-  // on verifie que les input ne sont pas vide
-  if (inputFirstName == "" || inputLastName == "" || inputMessage == "") {
-    myError.style.display = "block";
-    console.log("un ou plusieurs champs sont vide");
-  } else {
-    const clone = cloneComment(
-      comment,
-      inputFirstName,
-      inputLastName,
-      inputMessage
-    );
-    // ajout le clone dans le dom
-    commentList.appendChild(clone);
+      // Insère le nouveau commentaire dans la liste des commentaires existants
+      commentList.insertAdjacentHTML("beforeend", newComment);
 
-    resetFormInput();
-    myError.style.display = "none";
-    console.log("tout est ok");
-  }
+      // Efface les champs du formulaire après soumission
+      document.getElementById("first-name").value = "";
+      document.getElementById("last-name").value = "";
+      document.getElementById("message").value = "";
+    } else {
+      errorMessage.style.display = "block"; // Affiche le message d'erreur si tous les champs ne sont pas remplis
+    }
+  });
 });
